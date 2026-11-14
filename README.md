@@ -4,8 +4,8 @@ Disposition conseillée du dépôt HealthDesk :
 
 ```
 HealthDesk/
-├── frontend/          ← le projet React (archive frontend-rdv-medicaux.zip)
-├── backend/           ← cette archive
+├── frontend/         
+├── backend/          
 ├── db/schema.sql
 ├── docker-compose.yml
 └── .env.example
@@ -18,9 +18,9 @@ Prérequis : **Node.js 18+** et **Python 3.11+**. Docker n'est nécessaire que p
 ```powershell
 cd backend
 python -m venv .venv
-.venv\Scripts\activate                 # Linux / macOS : source .venv/bin/activate
+.venv\Scripts\activate                 
 pip install -r requirements.txt
-copy .env.example .env                 # Linux / macOS : cp .env.example .env
+copy .env.example .env                 
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -54,9 +54,9 @@ Ces comptes sont réservés au développement : en production, mettre `SEED_DEMO
 ## 4. Utiliser PostgreSQL au lieu de SQLite (optionnel)
 
 ```powershell
-copy .env.example .env                 # à la racine : définir POSTGRES_PASSWORD
+copy .env.example .env                
 docker compose up -d db
-docker compose exec db psql -U healthdesk -d healthdesk -c "\dt"     # doit lister les 7 tables
+docker compose exec db psql -U healthdesk -d healthdesk -c "\dt"     
 ```
 
 Puis, dans `backend/.env`, remplace la ligne `DATABASE_URL` par :
@@ -75,14 +75,3 @@ cd backend
 pip install -r requirements-dev.txt
 pytest
 ```
-
-Les tests couvrent : connexion, inscription, droits par rôle, pagination et recherche, réservation et double réservation, statuts, documents et accès, suppression refusée, tableau de bord.
-
-## 6. Problèmes fréquents
-
-| Symptôme | Cause et solution |
-| --- | --- |
-| « Une erreur est survenue » à la connexion | Le backend n'est pas lancé (terminal n°1), ou `VITE_DEMO` vaut encore `true` |
-| `ECONNREFUSED` dans le terminal de Vite | Le backend n'écoute pas sur le port 8000 |
-| Port 5432 déjà utilisé | Un PostgreSQL local tourne : l'arrêter, ou utiliser `5433:5432` dans `docker-compose.yml` |
-| Données de démonstration à refaire | Arrêter le backend, supprimer `backend/healthdesk.db` (et `backend/uploads`), relancer |
