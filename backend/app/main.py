@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 
 from .config import settings
 from .db import Base, SessionLocal, engine
-from .routers import appointments, auth, doctors, documents, patients, specialties, stats, users
-from .seed import seed
+from .routers import appointments, auth, doctors, documents, patients, reviews, specialties, stats, users
+from .seed import seed, seed_reviews
 
 
 @asynccontextmanager
@@ -20,6 +20,7 @@ async def lifespan(_: FastAPI):
     if settings.seed_demo_data:
         with SessionLocal() as db:
             seed(db)
+            seed_reviews(db)  # ajoute les avis de démo aussi aux bases créées avant leur introduction
     yield
 
 
@@ -49,5 +50,5 @@ def health():
     return {"status": "ok"}
 
 
-for module in (auth, specialties, doctors, patients, users, appointments, documents, stats):
+for module in (auth, specialties, doctors, patients, users, appointments, documents, reviews, stats):
     app.include_router(module.router)

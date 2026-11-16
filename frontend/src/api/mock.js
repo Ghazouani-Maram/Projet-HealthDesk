@@ -1,5 +1,5 @@
 // Mode démo : API simulée en mémoire (VITE_DEMO=true). Aucune donnée n'est conservée au rechargement.
-import { todayISO } from '../utils';
+import { maskName, todayISO } from '../utils';
 
 export class MockError extends Error {
   constructor(status, message) {
@@ -9,6 +9,7 @@ export class MockError extends Error {
 }
 
 const day = (o, hm) => `${todayISO(o)}T${hm}:00`;
+const ago = (d) => new Date(Date.now() - d * 864e5).toISOString().slice(0, 19);
 const db = {
   seq: 100,
   specialties: [
@@ -48,6 +49,20 @@ const db = {
     { id: 9, doctorId: 1, patientId: 2, startsAt: day(-5, '14:30'), reason: 'Certificat médical', status: 'DONE' },
     { id: 10, doctorId: 5, patientId: 3, startsAt: day(-1, '10:00'), reason: 'Électrocardiogramme', status: 'CANCELLED' },
   ],
+  // Avis de démonstration (doctorId, patientId, note, commentaire, ancienneté en jours)
+  reviews: [
+    [1, 3, 5, "Médecin très agréable, consciencieux et à l'écoute. Prend le temps d'expliquer le traitement.", 20],
+    [1, 4, 4, 'Consultation claire et rassurante, cabinet bien organisé.', 75],
+    [2, 3, 4, "Très compétent, il a pris le temps de bien m'expliquer mes résultats.", 40],
+    [2, 4, 5, null, 130],
+    [3, 1, 5, 'Diagnostic précis et traitement efficace, je recommande.', 12],
+    [3, 2, 3, 'Bon médecin mais la consultation était un peu rapide.', 95],
+    [3, 3, 4, 'Ponctuel et professionnel.', 210],
+    [4, 1, 4, 'Très doux avec les enfants.', 33],
+    [4, 3, 5, 'Excellent pédiatre, patient et rassurant pour les parents.', 160],
+    [5, 2, 2, "Attente interminable, les horaires ne sont pas respectés. Pas très à l'écoute, diagnostic approximatif dans mon cas.", 52],
+    [5, 1, 4, 'Médecin sérieux, explications claires.', 180],
+  ].map(([doctorId, patientId, rating, comment, d], i) => ({ id: i + 1, doctorId, patientId, rating, comment, createdAt: ago(d) })),
   documents: [
     { id: 1, title: 'Analyse de sang', patientId: 1, size: 245000, createdAt: day(-4, '08:00') },
     { id: 2, title: 'Radio du genou', patientId: 2, size: 1800000, createdAt: day(-2, '08:00') },
@@ -63,7 +78,11 @@ const page = (arr, p) => {
   return { items: ok(arr.slice((n - 1) * size, n * size)), total: arr.length };
 };
 const spec = (id) => db.specialties.find((s) => s.id == id);
-const doc = (id) => { const d = db.doctors.find((x) => x.id == id); return { ...d, specialty: spec(d.specialtyId) }; };
+const rating = (id) => {
+  const r = db.reviews.filter((x) => x.doctorId == id);
+  return { avg: r.length ? Math.round((r.reduce((s, x) => s + x.rating, 0) / r.length) * 10) / 10 : null, count: r.length };
+};
+const doc = (id) => { const d = db.doctors.find((x) => x.id == id); return { ...d, specialty: spec(d.specialtyId), rating: rating(id) }; };
 const pat = (id) => db.patients.find((x) => x.id == id);
 const view = (a) => ({ ...a, doctor: doc(a.doctorId), patient: pat(a.patientId) });
 const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, doctorId: u.doctorId, patientId: u.patientId });
@@ -106,6 +125,33 @@ export async function handle({ method, path, params = {}, body, token }) {
       appointmentsPending: byStatus.PENDING, byStatus,
       topSpecialties: Object.entries(bySpec).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
     };
+  }
+
+  if (res === 'doctors' && sub === 'reviews') {
+    const mine = me.role === 'PATIENT' ? me.patientId : null;
+    const done = mine && db.appointments.some((a) => a.doctorId == id && a.patientId === mine && a.status === 'DONE');
+    const state = () => (me.role !== 'PATIENT' ? null
+      : db.reviews.some((r) => r.doctorId == id && r.patientId === mine) ? 'ALREADY_REVIEWED' : done ? 'CAN_REVIEW' : 'NEEDS_VISIT');
+    const out = (r) => ({ id: r.id, rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: maskName(pat(r.patientId).name), mine: r.patientId === mine });
+    if (method === 'POST') {
+      if (me.role !== 'PATIENT') throw new MockError(403, 'Accès refusé pour votre rôle');
+      if (state() === 'ALREADY_REVIEWED') throw new MockError(409, 'Vous avez déjà donné votre avis sur ce médecin');
+      if (state() !== 'CAN_REVIEW') throw new MockError(403, 'Vous pouvez donner votre avis après une consultation terminée avec ce médecin');
+      const r = { id: ++db.seq, doctorId: +id, patientId: mine, rating: +body.rating, comment: (body.comment || '').trim() || null, createdAt: ago(0) };
+      db.reviews.push(r);
+      return out(r);
+    }
+    const all = db.reviews.filter((r) => r.doctorId == id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    all.forEach((r) => { distribution[r.rating]++; });
+    const p = page(all, params);
+    return { items: p.items.map(out), total: p.total, summary: { ...rating(id), distribution }, reviewState: state() };
+  }
+  if (res === 'reviews' && method === 'DELETE') {
+    const r = db.reviews.find((x) => x.id == id);
+    if (!r || (me.role === 'PATIENT' && r.patientId !== me.patientId)) throw new MockError(404, 'Avis introuvable');
+    db.reviews = db.reviews.filter((x) => x.id != id);
+    return null;
   }
 
   if (res === 'doctors' && sub === 'slots') {

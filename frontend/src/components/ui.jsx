@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { STATUS_LABEL } from '../utils';
 
-export function Modal({ title, onClose, children }) {
+export function Modal({ title, onClose, children, wide = false }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -10,7 +10,7 @@ export function Modal({ title, onClose, children }) {
   }, [onClose]);
   return (
     <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label={title}>
+      <div className={`modal${wide ? ' wide' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <header>
           <h2>{title}</h2>
           <button className="icon" onClick={onClose} aria-label="Fermer">×</button>
@@ -63,5 +63,29 @@ export function OptionSelect({ options, optionsPath, value, onChange, placeholde
       <option value="">{placeholder || 'Choisir…'}</option>
       {opts.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
     </select>
+  );
+}
+
+// Étoiles en lecture seule, remplies à hauteur de la note (4,2 -> 84 %)
+export function Stars({ value = 0, label }) {
+  const v = Math.max(0, Math.min(5, Number(value) || 0));
+  return (
+    <span className="stars" role="img" aria-label={label || `${v} sur 5`} style={{ '--pct': `${Math.round((v / 5) * 1000) / 10}%` }}>
+      ★★★★★
+    </span>
+  );
+}
+
+// Saisie d'une note de 1 à 5
+export function RatingInput({ value, onChange }) {
+  const [hover, setHover] = useState(0);
+  const shown = hover || value;
+  return (
+    <div className="rating-input" role="radiogroup" aria-label="Note" onMouseLeave={() => setHover(0)}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button type="button" key={n} role="radio" aria-checked={value === n} aria-label={`${n} sur 5`}
+          className={n <= shown ? 'on' : ''} onMouseEnter={() => setHover(n)} onClick={() => onChange(n)}>★</button>
+      ))}
+    </div>
   );
 }

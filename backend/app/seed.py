@@ -1,10 +1,10 @@
 """Données de démonstration, créées uniquement si la base est vide."""
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .models import Appointment, Availability, Doctor, Patient, Specialty, User
+from .models import Appointment, Availability, Doctor, Patient, Review, Specialty, User
 from .security import hash_password
 
 ADMIN_PASSWORD = "Admin123!"
@@ -37,9 +37,11 @@ def seed(db: Session) -> None:
         doctors.append(d)
 
     patients = []
-    for name, email, phone in [("Yasmine Khelifi", "patient@demo.tn", "20 111 001"), ("Omar Bouzid", "o.bouzid@demo.tn", "20 111 002"),
-                               ("Leila Chaabane", "l.chaabane@demo.tn", "20 111 003"), ("Sami Hamdi", "s.hamdi@demo.tn", "20 111 004")]:
-        p = Patient(phone=phone)
+    for name, email, phone, birth in [("Yasmine Khelifi", "patient@demo.tn", "20 111 001", date(1998, 4, 12)),
+                                      ("Omar Bouzid", "o.bouzid@demo.tn", "20 111 002", date(1985, 9, 30)),
+                                      ("Leila Chaabane", "l.chaabane@demo.tn", "20 111 003", date(1972, 1, 5)),
+                                      ("Sami Hamdi", "s.hamdi@demo.tn", "20 111 004", date(2015, 6, 21))]:
+        p = Patient(phone=phone, birth_date=birth)
         db.add(User(name=name, email=email, password_hash=demo_hash, role="PATIENT", patient=p))
         patients.append(p)
 
@@ -53,4 +55,33 @@ def seed(db: Session) -> None:
         (0, 0, at(3, 10), "Suivi fatigue", "CONFIRMED"), (1, 1, at(-3, 9), "Palpitations", "DONE"),
         (0, 1, at(-5, 14, 30), "Certificat médical", "DONE"), (4, 2, at(-1, 10), "Électrocardiogramme", "CANCELLED")]:
         db.add(Appointment(doctor=doctors[doc], patient=patients[pat], starts_at=when, reason=reason, status=status))
+    db.commit()
+
+
+# (email du médecin, email du patient, note, commentaire, ancienneté en jours)
+DEMO_REVIEWS = [
+    ("medecin@demo.tn", "l.chaabane@demo.tn", 5, "Médecin très agréable, consciencieux et à l'écoute. Prend le temps d'expliquer le traitement.", 20),
+    ("medecin@demo.tn", "s.hamdi@demo.tn", 4, "Consultation claire et rassurante, cabinet bien organisé.", 75),
+    ("k.trabelsi@demo.tn", "l.chaabane@demo.tn", 4, "Très compétent, il a pris le temps de bien m'expliquer mes résultats.", 40),
+    ("k.trabelsi@demo.tn", "s.hamdi@demo.tn", 5, None, 130),
+    ("i.gharbi@demo.tn", "patient@demo.tn", 5, "Diagnostic précis et traitement efficace, je recommande.", 12),
+    ("i.gharbi@demo.tn", "o.bouzid@demo.tn", 3, "Bon médecin mais la consultation était un peu rapide.", 95),
+    ("i.gharbi@demo.tn", "l.chaabane@demo.tn", 4, "Ponctuel et professionnel.", 210),
+    ("m.jlassi@demo.tn", "patient@demo.tn", 4, "Très doux avec les enfants.", 33),
+    ("m.jlassi@demo.tn", "l.chaabane@demo.tn", 5, "Excellent pédiatre, patient et rassurant pour les parents.", 160),
+    ("r.mansour@demo.tn", "o.bouzid@demo.tn", 2, "Attente interminable, les horaires ne sont pas respectés. Pas très à l'écoute, diagnostic approximatif dans mon cas.", 52),
+    ("r.mansour@demo.tn", "patient@demo.tn", 4, "Médecin sérieux, explications claires.", 180),
+]
+
+
+def seed_reviews(db: Session) -> None:
+    """Avis de démonstration, créés uniquement si aucun avis n'existe encore."""
+    if db.scalar(select(func.count()).select_from(Review)):
+        return
+    doctors = {u.email: u.doctor for u in db.scalars(select(User).where(User.role == "DOCTOR"))}
+    patients = {u.email: u.patient for u in db.scalars(select(User).where(User.role == "PATIENT"))}
+    for d_email, p_email, rating, comment, days in DEMO_REVIEWS:
+        if doctors.get(d_email) and patients.get(p_email):
+            db.add(Review(doctor=doctors[d_email], patient=patients[p_email], rating=rating, comment=comment,
+                          created_at=datetime.now() - timedelta(days=days)))
     db.commit()

@@ -3,7 +3,7 @@ from datetime import date, datetime, time
 from typing import Optional
 
 from sqlalchemy import (BigInteger, Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index,
-                        Integer, SmallInteger, String, Text, Time, text)
+                        Integer, SmallInteger, String, Text, Time, UniqueConstraint, text)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -43,6 +43,7 @@ class Doctor(Base):
     user: Mapped[User] = relationship(back_populates="doctor")
     specialty: Mapped[Specialty] = relationship()
     availabilities: Mapped[list["Availability"]] = relationship(cascade="all, delete-orphan")
+    reviews: Mapped[list["Review"]] = relationship(back_populates="doctor", cascade="all, delete-orphan")
 
 
 class Patient(Base):
@@ -103,3 +104,23 @@ class Document(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
     patient: Mapped[Patient] = relationship(back_populates="documents")
+
+
+class Review(Base):
+    """Avis d'un patient sur un médecin : note de 1 à 5 et commentaire facultatif.
+    RG8 : un seul avis par patient et par médecin, uniquement après un rendez-vous terminé (DONE)."""
+    __tablename__ = "reviews"
+    __table_args__ = (
+        CheckConstraint("rating BETWEEN 1 AND 5", name="ck_reviews_rating"),
+        UniqueConstraint("doctor_id", "patient_id", name="uq_review_doctor_patient"),
+        Index("idx_reviews_doctor", "doctor_id", "created_at"),
+    )
+    id: Mapped[int] = mapped_column(ID, primary_key=True)
+    doctor_id: Mapped[int] = mapped_column(ID, ForeignKey("doctors.id", ondelete="CASCADE"))
+    patient_id: Mapped[int] = mapped_column(ID, ForeignKey("patients.id", ondelete="CASCADE"))
+    rating: Mapped[int] = mapped_column(SmallInteger)
+    comment: Mapped[Optional[str]] = mapped_column(String(1000))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    doctor: Mapped[Doctor] = relationship(back_populates="reviews")
+    patient: Mapped[Patient] = relationship()

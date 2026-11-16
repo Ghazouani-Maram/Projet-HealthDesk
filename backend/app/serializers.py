@@ -17,10 +17,25 @@ def me_out(u):
     }
 
 
+def mask_name(name):
+    """« Yasmine Khelifi » -> « Yasmine K. » : l'auteur d'un avis n'est pas identifié en entier."""
+    parts = name.split()
+    return f"{parts[0]} {parts[-1][0].upper()}." if len(parts) > 1 else name
+
+
 def doctor_out(d):
+    ratings = [r.rating for r in d.reviews]
     return {
         "id": d.id, "name": d.user.name, "email": d.user.email, "phone": d.phone,
         "specialty": {"id": d.specialty.id, "name": d.specialty.name},
+        "rating": {"avg": round(sum(ratings) / len(ratings), 1) if ratings else None, "count": len(ratings)},
+    }
+
+
+def review_out(r, mine=False):
+    return {
+        "id": r.id, "rating": r.rating, "comment": r.comment, "createdAt": iso(r.created_at),
+        "author": mask_name(r.patient.user.name), "mine": mine,
     }
 
 
@@ -35,7 +50,8 @@ def appointment_out(a):
     return {
         "id": a.id, "startsAt": iso(a.starts_at), "reason": a.reason, "status": a.status,
         "doctor": doctor_out(a.doctor),
-        "patient": {"id": a.patient.id, "name": a.patient.user.name},
+        "patient": {"id": a.patient.id, "name": a.patient.user.name, "phone": a.patient.phone,
+                    "birthDate": a.patient.birth_date.isoformat() if a.patient.birth_date else None},
     }
 
 

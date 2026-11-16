@@ -176,3 +176,49 @@ input,select,textarea{border:1px solid #dce4ef;border-radius:9px;padding:10px 12
   width: 100%;
   max-width: none;
 }
+
+/* Avis des patients sur les médecins */
+.stars{display:inline-block;font-size:15px;letter-spacing:2px;line-height:1;vertical-align:middle;white-space:nowrap;
+  background:linear-gradient(90deg,#f5a623 var(--pct),#d6dde8 var(--pct));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rating-link{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:4px 6px;margin:-4px -6px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap}
+.rating-link b{color:#243752;font-size:13px}.rating-link:hover{background:#f2f6ff;color:var(--primary)}
+.modal.wide{width:min(640px,100%)}.rev-sub{margin:-8px 0 16px;font-size:12px}
+.rev-summary{display:flex;gap:26px;align-items:center;flex-wrap:wrap;padding:16px 18px;background:#f8fafd;border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+.rev-score{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:96px}.rev-score b{font:800 40px/1 Manrope,sans-serif;color:#1d3760}.rev-score .stars{font-size:17px}.rev-score span{font-size:11px;color:var(--muted)}
+.rev-dist{flex:1;min-width:190px;display:grid;gap:5px}.rev-dist-row{display:grid;grid-template-columns:28px 1fr 22px;gap:8px;align-items:center;font-size:11px;color:#64748b}
+.rev-dist-row i{height:7px;border-radius:9px;background:#e3e9f2;overflow:hidden}.rev-dist-row u{display:block;height:100%;background:#f5a623;border-radius:9px;text-decoration:none}.rev-dist-row span:last-child{text-align:right}
+.rev-form{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px}.rev-form h3{font-size:.95rem;margin:0 0 10px}.rev-form .field{margin:12px 0 0}.rev-form .form-actions{margin-top:12px}
+.rating-input{display:flex;gap:2px}.rating-input button{background:none;border:0;padding:0 2px;font-size:30px;line-height:1;color:#d6dde8;cursor:pointer;transition:transform .12s}.rating-input button.on{color:#f5a623}.rating-input button:hover{transform:scale(1.12)}
+.rev-hint{font-size:12px;color:var(--muted);background:#f4f8ff;border:1px solid #e1ebfb;border-radius:10px;padding:10px 13px;margin-bottom:16px}
+.rev-list{list-style:none;margin:0;padding:0}.rev-item{display:flex;gap:13px;padding:16px 2px;border-top:1px solid #edf1f6}.rev-item:first-child{border-top:0}
+.rev-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;color:#fff;background:hsl(var(--h) 55% 52%)}
+.rev-body{min-width:0;flex:1}.rev-body p{margin:7px 0 0;font-size:13px;color:#44546b;overflow-wrap:anywhere}
+.rev-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:3px}.rev-head strong{font-size:13px;color:#243752}.rev-head em{font-style:normal;font-weight:500;color:var(--muted)}.rev-head time{font-size:11px;color:var(--muted);white-space:nowrap}
+.rev-del{background:none;border:0;padding:0;margin-top:6px;font-size:11px;color:var(--rose);cursor:pointer}.rev-del:hover{text-decoration:underline}
+.rev-more{display:block;margin:6px auto 0}
+@media(max-width:680px){.rev-summary{gap:16px}.rev-score b{font-size:34px}}
+
+/* Planning du médecin */
+.plan-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.plan-nav input{width:auto}.plan-nav .btn{min-width:36px}
+.kpi-sub{display:block;margin-top:3px;font-size:11px;color:#8a97ab;position:relative;z-index:1}.kpis .stat b{font-size:22px;line-height:1.35}.kpis .stat b .stars{font-size:14px;margin-left:4px}
+.day-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.day-chip{display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 4px;background:#fff;border:1px solid var(--line);border-radius:13px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.day-chip:hover{transform:translateY(-2px);border-color:#b9cff6}.day-chip span{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#8997aa;font-weight:700}.day-chip b{font:800 20px Manrope,sans-serif;color:#1d3760}.day-chip em{font-style:normal;font-size:10px;font-weight:700;color:var(--primary)}.day-chip em.zero{color:#b4bfce}
+.day-chip.today b{color:var(--primary)}.day-chip.on{background:linear-gradient(145deg,#3477ed,#245bc8);border-color:#245bc8}.day-chip.on span,.day-chip.on b,.day-chip.on em{color:#fff}
+.plan-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}.plan-side{display:grid;gap:16px}
+.plan-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}.plan-head h2{text-transform:capitalize;margin:0;display:flex;align-items:center;gap:10px}
+.switch{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}.switch input{width:auto}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chips .chip small{opacity:.7;margin-left:3px}
+.tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.3px;padding:3px 8px;border-radius:99px;text-transform:none}.tag.now{background:#e5f7f0;color:#11815f}.tag.next{background:#edf4ff;color:var(--primary)}
+.timeline{display:grid;gap:9px}
+.tl-row{display:grid;grid-template-columns:62px 38px minmax(0,1fr) auto auto;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-left:4px solid #3477ed;border-radius:13px;padding:13px 16px;box-shadow:var(--shadow)}
+.tl-row.st-PENDING{border-left-color:#e0a030}.tl-row.st-CONFIRMED{border-left-color:#159b76}.tl-row.st-DONE{border-left-color:#aab5c4;opacity:.78}.tl-row.st-CANCELLED{border-left-color:#d34c65;opacity:.7}.tl-row.now{box-shadow:0 0 0 3px #159b7626,var(--shadow)}
+.tl-time{display:flex;flex-direction:column;line-height:1.25}.tl-time time{font:800 16px Manrope,sans-serif;color:#2b5eb4}.tl-time span{font-size:11px;color:#9aa7b8}
+.tl-main{display:flex;flex-direction:column;min-width:0;gap:1px}.tl-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.tl-title strong{font-size:13px;color:#243752}.tl-reason{font-size:12px;color:#44546b;overflow-wrap:anywhere}.tl-meta{font-size:11px;color:var(--muted)}
+.tl-free{display:flex;align-items:center;gap:14px;padding:9px 16px;border:1.5px dashed #cfdcf0;border-radius:13px;color:#6a86b6;font-size:12px;background:#f8fbff}.tl-free .tl-time{width:62px}.tl-free .tl-time time{font-size:14px;color:#6a86b6}
+.count-pill{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#fff1d7;color:#a86b0b;font:800 11px 'DM Sans',sans-serif;margin-left:6px}
+.pend{display:grid;gap:5px;padding:11px 0;border-top:1px solid #edf1f6;font-size:12px}.pend:first-of-type{border-top:0}.pend .actions{justify-content:flex-start}
+.pend-link{display:flex;justify-content:space-between;gap:8px;background:none;border:0;padding:0;cursor:pointer;text-align:left}.pend-link strong{color:#243752}.pend-link span{color:var(--primary);font-size:11px;font-weight:700}.pend-link:hover strong{text-decoration:underline}.pend-more{margin:8px 0 0;font-size:11px}
+.wk-row{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:8px;padding:7px 0;font-size:12px;color:#64748b}.wk-row b{color:#334a6b;font-size:14px}
+@media(max-width:1100px){.plan-grid{grid-template-columns:1fr}.plan-side{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
+@media(max-width:680px){.day-strip{gap:4px}.day-chip{padding:8px 2px}.day-chip em{font-size:9px}.tl-row{grid-template-columns:54px minmax(0,1fr);gap:9px}.tl-row .rev-avatar{display:none}.tl-row>.badge,.tl-row>.actions{grid-column:2}.tl-row>.actions{justify-content:flex-start}}

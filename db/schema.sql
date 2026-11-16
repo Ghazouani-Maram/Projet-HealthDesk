@@ -67,3 +67,16 @@ CREATE TABLE documents (
   storage_path      VARCHAR(255) NOT NULL UNIQUE,
   created_at        TIMESTAMP    NOT NULL DEFAULT now()
 );
+
+-- Avis des patients sur les médecins
+-- RG8 : un avis par patient et par médecin, réservé aux patients ayant eu un rendez-vous terminé (contrôlé par l'API)
+CREATE TABLE reviews (
+  id         BIGSERIAL PRIMARY KEY,
+  doctor_id  BIGINT        NOT NULL REFERENCES doctors(id)  ON DELETE CASCADE,
+  patient_id BIGINT        NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  rating     SMALLINT      NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment    VARCHAR(1000),
+  created_at TIMESTAMP     NOT NULL DEFAULT now(),
+  CONSTRAINT uq_review_doctor_patient UNIQUE (doctor_id, patient_id)
+);
+CREATE INDEX idx_reviews_doctor ON reviews (doctor_id, created_at);

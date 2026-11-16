@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useDebounce, useList } from '../api/hooks';
 import { ErrorMsg, Field, Loading, Modal, OptionSelect, Pagination } from './ui';
@@ -65,7 +65,7 @@ function FormModal({ singular, path, fields, row, onClose, onSaved }) {
  */
 export default function CrudPage({
   title, subtitle, singular, newLabel, path, columns, fields, filters = [],
-  canManage = true, rowActions, searchPlaceholder = 'Rechercher',
+  canManage = true, rowActions, searchPlaceholder = 'Rechercher', reloadToken,
 }) {
   const [search, setSearch] = useState('');
   const [filterValues, setFilterValues] = useState({});
@@ -73,6 +73,12 @@ export default function CrudPage({
   const list = useList(path, { search: q, ...filterValues });
   const [editing, setEditing] = useState(null); // null | {} (nouveau) | ligne existante
   const [actionError, setActionError] = useState('');
+
+  // Permet à la page parente de demander un rechargement (ex. note moyenne modifiée par un nouvel avis)
+  useEffect(() => {
+    if (reloadToken) list.reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadToken]);
 
   const remove = async (row) => {
     if (!window.confirm(`Supprimer « ${row.name} » ? Cette action est définitive.`)) return;
