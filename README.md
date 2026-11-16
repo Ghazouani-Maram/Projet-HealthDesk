@@ -40,18 +40,8 @@ npm run dev
 
 Ouvre http://localhost:5173. Vite redirige `/api` vers `localhost:8000`.
 
-## 3. Comptes de démonstration
 
-| Rôle | Email | Mot de passe |
-| --- | --- | --- |
-| Administrateur | `admin@demo.tn` | `Admin123!` |
-| Médecin | `medecin@demo.tn` | `Demo1234!` |
-| Patient | `patient@demo.tn` | `Demo1234!` |
-
-Les autres médecins et patients de démonstration (`k.trabelsi@demo.tn`, `o.bouzid@demo.tn`, etc.) ont le mot de passe `Demo1234!`.
-Ces comptes sont réservés au développement : en production, mettre `SEED_DEMO_DATA=false` et créer un vrai administrateur.
-
-## 4. Utiliser PostgreSQL au lieu de SQLite (optionnel)
+## 3. Utiliser PostgreSQL au lieu de SQLite (optionnel)
 
 ```powershell
 copy .env.example .env                
@@ -68,7 +58,7 @@ DATABASE_URL=postgresql+psycopg://healthdesk:LE_MOT_DE_PASSE@localhost:5432/heal
 Relance le backend : il remplit la base vide avec les données de démonstration.
 `schema.sql` ne s'exécute qu'au premier démarrage du volume ; pour repartir de zéro : `docker compose down -v`.
 
-## 5. Tests du backend
+## 4. Tests du backend
 
 ```powershell
 cd backend
